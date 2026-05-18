@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El Condor Pasa</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --melody: #17224c;
+      --arp: #8b2830;
+      --am: #b8f28f;
+      --c: #aee9ff;
+      --f: #ffd891;
+      --g: #d5c4ff;
+      --d: #ffc1d6;
+      --paper: #ffffff;
+      --line: #dedede;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(23,34,76,0.05) 0 1px, transparent 1px 100%) 0 0 / 34px 34px,
+        #f5f5f2;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: min(1040px, calc(100vw - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      align-content: center;
+      gap: 34px;
+      padding: 42px 0;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--melody);
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: 0.92;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: #424242;
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 250px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 22px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: inherit;
+      text-decoration: none;
+      box-shadow: 0 16px 34px rgba(0,0,0,0.10);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(23,34,76,0.36);
+      box-shadow: 0 22px 46px rgba(0,0,0,0.14);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--melody);
+      font-size: clamp(28px, 3.2vw, 42px);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .card-title span:last-child {
+      display: inline-grid;
+      place-items: center;
+      min-width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #222;
+      color: white;
+      font-size: 24px;
+    }
+
+    .sample {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+    }
+
+    .cell {
+      min-height: 42px;
+      display: grid;
+      align-items: center;
+      border-right: 1px solid var(--line);
+      padding-left: 10px;
+      color: var(--melody);
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .finger {
+      color: var(--arp);
+      font-size: 16px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .chords {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chord {
+      min-width: 42px;
+      padding: 5px 10px 6px;
+      border-radius: 999px;
+      color: #244018;
+      text-align: center;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .am { background: color-mix(in srgb, var(--am) 70%, white); }
+    .c { background: color-mix(in srgb, var(--c) 70%, white); }
+    .f { background: color-mix(in srgb, var(--f) 70%, white); }
+    .g { background: color-mix(in srgb, var(--g) 70%, white); }
+    .d { background: color-mix(in srgb, var(--d) 70%, white); }
+
+    .arp-row {
+      color: var(--arp);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .card-copy {
+      margin: 0;
+      color: #4b4b4b;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    @media (max-width: 760px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>EL CONDOR PASA</h1>
+      <p class="subtitle">Material de estudio para piano con lectura por colores, acordes resaltados y guias imprimibles.</p>
+    </header>
+
+    <section class="cards" aria-label="Versiones disponibles">
+      <a class="card" href="./el-condor-pasa-acordes.html">
+        <div class="card-title">
+          <span>Acordes</span>
+          <span>›</span>
+        </div>
+        <div class="sample" aria-hidden="true">
+          <div class="chords">
+            <span class="chord am">Am</span>
+            <span class="chord c">C</span>
+            <span class="chord f">F</span>
+          </div>
+          <div class="row">
+            <span class="cell"><small class="finger">1</small>MI</span>
+            <span class="cell"><small class="finger">3</small>LA</span>
+            <span class="cell"><small class="finger">2</small>SOL#</span>
+            <span class="cell"><small class="finger">1</small>LA</span>
+            <span class="cell"><small class="finger">2</small>SI</span>
+          </div>
+        </div>
+        <p class="card-copy">Melodia, digitacion y cambios de acorde en una hoja A4 vertical.</p>
+      </a>
+
+      <a class="card" href="./el-condor-pasa-arpegio.html">
+        <div class="card-title">
+          <span>Arpegio</span>
+          <span>›</span>
+        </div>
+        <div class="sample" aria-hidden="true">
+          <div class="chords">
+            <span class="chord am">Am</span>
+            <span class="chord c">C</span>
+          </div>
+          <div class="row arp-row">
+            <span class="cell">La</span>
+            <span class="cell">Mi</span>
+            <span class="cell">Do</span>
+            <span class="cell">Mi</span>
+            <span class="cell">La</span>
+          </div>
+          <div class="row">
+            <span class="cell">Mi</span>
+            <span class="cell">La</span>
+            <span class="cell">Sol#</span>
+            <span class="cell">La</span>
+            <span class="cell">Si</span>
+          </div>
+        </div>
+        <p class="card-copy">Arpegios rojos sobre melodia azul en formato A4 horizontal.</p>
+      </a>
+    </section>
+  </main>
+</body>
+</html>

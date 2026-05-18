@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El Condor Pasa - Arpegio</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    :root {
+      --ink: #202124;
+      --melody: #17224c;
+      --arp: #8b2830;
+      --chord: #244018;
+      --chord-bg: #b8f28f;
+      --line: #dedede;
+      --paper: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #d7d7d2;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: min(100vw, calc(100vh * 1.4142857));
+      height: min(100vh, calc(100vw / 1.4142857));
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+      padding: clamp(22px, 5vh, 13mm) clamp(24px, 4vw, 12mm) clamp(20px, 4.5vh, 12mm);
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: clamp(12px, 2.8vh, 6mm);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4.5vh, 8mm);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .legend {
+      display: flex;
+      gap: 5mm;
+      align-items: center;
+      font-size: 3.7mm;
+      font-weight: 800;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+
+    .dot {
+      width: 3mm;
+      height: 3mm;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.blue {
+      background: var(--melody);
+    }
+
+    .dot.red {
+      background: var(--arp);
+    }
+
+    .score {
+      display: grid;
+      gap: clamp(6px, 1.4vh, 2.4mm);
+    }
+
+    .sheet-page {
+      display: none;
+    }
+
+    .sheet-page.active {
+      display: grid;
+    }
+
+    .page-counter {
+      color: #666;
+      font-size: 3.7mm;
+      line-height: 1;
+      font-weight: 800;
+      margin-left: 4mm;
+    }
+
+    .system {
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    td {
+      text-align: left;
+      vertical-align: middle;
+      border-right: 0;
+      padding: 0 2.4mm;
+    }
+
+    td.has-content {
+      border-right: 0.35mm solid var(--line);
+    }
+
+    .chord-row td {
+      height: 7.5mm;
+      vertical-align: bottom;
+    }
+
+    .chord {
+      display: inline-block;
+      min-width: 12mm;
+      padding: 0.5mm 2.2mm 0.8mm;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,242,143,0.95) 0 55%, rgba(184,242,143,0.55) 56% 100%);
+      color: var(--chord);
+      font-size: 7.5mm;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .chord-row td.has-content {
+      text-align: center;
+    }
+
+    .melody-row td {
+      height: 12mm;
+      color: var(--melody);
+      font-size: 8.2mm;
+      line-height: 1;
+      font-weight: 800;
+      vertical-align: top;
+    }
+
+    .arp-row td {
+      height: 7.4mm;
+      color: var(--arp);
+      font-size: 5.1mm;
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .arp-row.primary td {
+      height: 9mm;
+      vertical-align: bottom;
+    }
+
+    .arp-row.compact td {
+      height: 7.4mm;
+    }
+
+    .binote {
+      display: inline-grid;
+      gap: 0.4mm;
+      justify-items: start;
+      min-height: 8.5mm;
+      align-content: center;
+    }
+
+    .single {
+      display: inline-grid;
+      min-height: 7.2mm;
+      align-content: center;
+    }
+
+    .repeat {
+      color: var(--melody);
+      font-size: 7mm;
+      font-weight: 800;
+    }
+
+    .tip {
+      display: inline-block;
+      max-width: 34mm;
+      padding: 1.4mm 2mm;
+      border-radius: 6px;
+      background: #fff7d6;
+      color: #5f4210;
+      font-size: 3.1mm;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-links a,
+    .print-button {
+      position: fixed;
+      z-index: 10;
+      border: 0;
+      border-radius: 999px;
+      background: #222;
+      color: white;
+      padding: 12px 18px;
+      font: 700 15px/1 Arial, Helvetica, sans-serif;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .nav-links a {
+      position: static;
+    }
+
+    .print-button {
+      right: 22px;
+      bottom: 22px;
+    }
+
+    .nav-links a:hover,
+    .print-button:hover,
+    .nav-button:hover {
+      background: #000;
+    }
+
+    .print-button::before {
+      content: "⎙";
+      margin-right: 8px;
+      font-size: 17px;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        box-shadow: none;
+        width: 297mm;
+        height: 210mm;
+        padding: 13mm 12mm 12mm;
+      }
+
+      .print-button,
+      .nav-links {
+        display: none;
+      }
+
+      .sheet-page {
+        display: grid;
+        break-after: page;
+      }
+
+      .sheet-page:last-child {
+        break-after: auto;
+      }
+
+      .page-counter {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav-links" aria-label="Navegacion">
+    <a href="./index.html">Inicio</a>
+    <a href="./el-condor-pasa-acordes.html">Acordes</a>
+  </nav>
+  <button class="print-button" type="button" onclick="window.print()">Imprimir</button>
+
+  <main class="page" aria-label="Hoja A4 de arpegios para El Condor Pasa">
+    <header>
+      <h1>EL CONDOR PASA - ARPEGIO</h1>
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot blue"></i>Melodia</span>
+        <span><i class="dot red"></i>Arpegio</span>
+        <span class="page-counter" aria-live="polite">Pagina 1 / 2</span>
+      </div>
+    </header>
+
+    <section class="score sheet-page active" data-page="1">
+      <div class="system">
+        <table aria-label="Bloque 1: acorde, arpegio y melodia">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td class="has-content"><span class="chord">Am</span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="chord">C</span></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td class="has-content"><span class="single">La</span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">La</span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Mi - Sol</span></span></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Mi</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol#</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Si</td>
+              <td class="has-content">Do</td>
+              <td class="has-content">Si</td>
+              <td class="has-content">Do</td>
+              <td class="has-content">Re</td>
+              <td class="has-content">Mi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Bloque 2: arpegio y melodia repetida">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td class="has-content"><span class="binote"><span>Mi - Sol</span></span></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">Sol</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="single">Sol</span></td>
+              <td class="has-content"><span class="binote"><span>Mi - Sol</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Mi - Sol</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Sol</td>
+              <td class="has-content">Mi</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">Mi</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Bloque 3: acorde Am, arpegio y melodia">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="chord">Am</span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">Sol</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="binote"><span>La - Mi</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Do - Mi</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>La - Mi</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Mi</td>
+              <td class="has-content">Re</td>
+              <td class="has-content">Do</td>
+              <td class="has-content">La</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Bloque 4: cierre repetido">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td class="has-content"><span class="binote"><span>Do - Mi</span></span></td>
+              <td class="has-content"><span class="binote"><span>La - Mi</span></span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Do</td>
+              <td class="has-content">La <span class="repeat">//</span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="score sheet-page" data-page="2">
+      <div class="system">
+        <table aria-label="Pagina 2 bloque 1">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td class="has-content"><span class="chord">F</span></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="chord">F</span></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Fa - Do</span></span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="single">Fa</span></td>
+              <td class="has-content"><span class="single">La</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="single">La</span></td>
+              <td class="has-content"><span class="binote"><span>Fa - Do</span></span></td>
+              <td></td><td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td>
+              <td class="has-content"><span class="single">La</span></td>
+              <td></td><td></td><td></td><td></td><td></td>
+              <td class="has-content"><span class="binote"><span>La - Do</span></span></td>
+              <td></td><td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td class="has-content"><span class="binote"><span>Fa - Do</span></span></td>
+              <td></td><td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Mi</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">La</td>
+              <td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Pagina 2 bloque 3 con indicacion de bis">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td></td>
+              <td class="has-content"><span class="chord">G</span></td>
+              <td class="has-content"><span class="chord">F</span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row">
+              <td class="has-content"><span class="single">La</span></td>
+              <td class="has-content"><span class="single">Do</span></td>
+              <td class="has-content"><span class="binote"><span>Sol - Re</span></span></td>
+              <td class="has-content"><span class="single">Si</span></td>
+              <td class="has-content"><span class="single">Re</span></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol - Mi - Sol</span></span></td>
+              <td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td><td></td>
+              <td class="has-content"><span class="binote"><span>Si - Re</span></span></td>
+              <td></td><td></td>
+              <td class="has-content"><span class="binote"><span>Do - Sol</span></span></td>
+              <td class="has-content"><span class="tip">Bis: 1ra vez completo. 2da vez tocar solo hasta este punto.</span></td>
+              <td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row">
+              <td></td><td></td>
+              <td class="has-content"><span class="binote"><span>Sol - Re</span></span></td>
+              <td></td><td></td>
+              <td class="has-content"><span class="single">Se elimina en la segunda</span></td>
+              <td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Do</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">La</td>
+              <td class="has-content">Sol</td>
+              <td class="has-content">Mi <span class="repeat">//</span></td>
+              <td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Pagina 2 bloque 4">
+          <tbody>
+            <tr class="chord-row">
+              <td></td><td></td><td></td>
+              <td class="has-content"><span class="chord">F</span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td class="has-content"><span class="single">Soli</span></td>
+              <td class="has-content"><span class="single">Mi</span></td>
+              <td class="has-content"><span class="single">Sol</span></td>
+              <td class="has-content"><span class="binote"><span>Fa - Do</span></span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td></td>
+              <td class="has-content"><span class="single">Re</span></td>
+              <td></td>
+              <td class="has-content"><span class="binote"><span>La - Do</span></span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Mi</td>
+              <td class="has-content">Re</td>
+              <td class="has-content">Do</td>
+              <td class="has-content">La</td>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Pagina 2 bloque 5">
+          <tbody>
+            <tr class="chord-row">
+              <td></td><td></td><td></td><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td class="has-content"><span class="binote"><span>La - Do</span></span></td>
+              <td class="has-content"><span class="binote"><span>Re - La</span></span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Fa# - La</span></span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td></td>
+              <td class="has-content"><span class="binote"><span>Re - La</span></span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Do</td>
+              <td class="has-content">La</td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="system">
+        <table aria-label="Pagina 2 cierre Am">
+          <tbody>
+            <tr class="chord-row">
+              <td></td>
+              <td class="has-content"><span class="chord">Am</span></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="arp-row compact">
+              <td class="has-content"><span class="binote"><span>Fa# - La</span></span></td>
+              <td></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="melody-row">
+              <td class="has-content">Mi</td>
+              <td class="has-content">La</td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script>
+    const pages = Array.from(document.querySelectorAll(".sheet-page"));
+    const counter = document.querySelector(".page-counter");
+    let currentPage = 0;
+
+    function showPage(index) {
+      currentPage = (index + pages.length) % pages.length;
+      pages.forEach((page, pageIndex) => {
+        page.classList.toggle("active", pageIndex === currentPage);
+      });
+      counter.textContent = `Pagina ${currentPage + 1} / ${pages.length}`;
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("a, button")) return;
+      showPage(currentPage + 1);
+    });
+  </script>
+</body>
+</html>

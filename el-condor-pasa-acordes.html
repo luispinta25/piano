@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El Condor Pasa - Acordes</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    :root {
+      --ink: #252525;
+      --melody: #17224c;
+      --finger: #8b2830;
+      --chord: #244018;
+      --am-bg: #b8f28f;
+      --c-bg: #aee9ff;
+      --f-bg: #ffd891;
+      --g-bg: #d5c4ff;
+      --d-bg: #ffc1d6;
+      --line: #dedede;
+      --paper: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #d7d7d2;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      position: relative;
+      width: min(100vw, calc(100vh * 1.4142857));
+      height: min(100vh, calc(100vw / 1.4142857));
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+      padding: clamp(24px, 5.8vh, 18mm) clamp(26px, 6vw, 18mm) clamp(20px, 4.5vh, 13mm);
+      cursor: pointer;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+    }
+
+    h1 {
+      margin: 0 0 clamp(22px, 4vh, 10mm) 0;
+      font-size: clamp(26px, 4.2vh, 7mm);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .music {
+      display: grid;
+      gap: clamp(7px, 1.4vh, 2mm);
+      width: 100%;
+    }
+
+    .sheet-page {
+      display: none;
+    }
+
+    .sheet-page.active {
+      display: grid;
+    }
+
+    .page-counter {
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: #666;
+      font-size: 4mm;
+      line-height: 1;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .phrase {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      column-gap: 0;
+      row-gap: 1.2mm;
+      align-items: end;
+      width: 100%;
+      margin-bottom: 0.6mm;
+    }
+
+    .chord {
+      justify-self: start;
+      display: inline-block;
+      min-width: 11mm;
+      padding: 0.5mm 2mm 0.8mm;
+      border-radius: 50%;
+      color: var(--chord);
+      font-size: 8mm;
+      line-height: 1;
+      font-weight: 800;
+      align-self: end;
+      min-height: 8.5mm;
+    }
+
+    .chord-am {
+      background: radial-gradient(circle, color-mix(in srgb, var(--am-bg) 95%, white) 0 55%, color-mix(in srgb, var(--am-bg) 55%, white) 56% 100%);
+    }
+
+    .chord-c {
+      background: radial-gradient(circle, color-mix(in srgb, var(--c-bg) 95%, white) 0 55%, color-mix(in srgb, var(--c-bg) 55%, white) 56% 100%);
+    }
+
+    .chord-f {
+      background: radial-gradient(circle, color-mix(in srgb, var(--f-bg) 95%, white) 0 55%, color-mix(in srgb, var(--f-bg) 55%, white) 56% 100%);
+    }
+
+    .chord-g {
+      background: radial-gradient(circle, color-mix(in srgb, var(--g-bg) 95%, white) 0 55%, color-mix(in srgb, var(--g-bg) 55%, white) 56% 100%);
+    }
+
+    .chord-d {
+      background: radial-gradient(circle, color-mix(in srgb, var(--d-bg) 95%, white) 0 55%, color-mix(in srgb, var(--d-bg) 55%, white) 56% 100%);
+    }
+
+    .empty-chord {
+      min-height: 8.5mm;
+    }
+
+    .note-row {
+      display: contents;
+    }
+
+    .note-row .note {
+      grid-row: 2;
+    }
+
+    .note {
+      position: relative;
+      display: inline-grid;
+      justify-items: start;
+      align-items: center;
+      min-width: 0;
+      height: 13.5mm;
+      padding-left: 1.2mm;
+      border-right: 0.35mm solid var(--line);
+      color: var(--melody);
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .note.dash::after {
+      content: "-";
+      position: absolute;
+      right: 1.4mm;
+      bottom: 1.1mm;
+      font-size: 6.6mm;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .finger {
+      color: var(--finger);
+      height: 4.3mm;
+      font-size: 5.5mm;
+      line-height: 4.3mm;
+    }
+
+    .name {
+      position: relative;
+      height: 7mm;
+      min-width: 8mm;
+      display: grid;
+      place-items: center;
+      font-size: 5.7mm;
+      line-height: 7mm;
+      padding: 0 2.5mm 0 0;
+    }
+
+    .repeat {
+      display: inline-grid;
+      place-items: end center;
+      height: 13.5mm;
+      font-weight: 800;
+      font-size: 6.6mm;
+      line-height: 1;
+      transform: translateY(-1mm);
+    }
+
+    .repeat {
+      margin-left: 1mm;
+      font-size: 7mm;
+      letter-spacing: 0;
+    }
+
+    .circled .name::after {
+      content: none;
+    }
+
+    .accent .name {
+      border-radius: 999px;
+      padding-inline: 1.8mm;
+      min-width: 9.5mm;
+    }
+
+    .accent-am .name {
+      background: color-mix(in srgb, var(--am-bg) 54%, white);
+    }
+
+    .accent-c .name {
+      background: color-mix(in srgb, var(--c-bg) 54%, white);
+    }
+
+    .accent-f .name {
+      background: color-mix(in srgb, var(--f-bg) 54%, white);
+    }
+
+    .accent-g .name {
+      background: color-mix(in srgb, var(--g-bg) 54%, white);
+    }
+
+    .accent-d .name {
+      background: color-mix(in srgb, var(--d-bg) 54%, white);
+    }
+
+    .nav-links {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-links a,
+    .print-button {
+      position: fixed;
+      border: 0;
+      border-radius: 999px;
+      background: #222;
+      color: white;
+      padding: 12px 18px;
+      font: 700 15px/1 Arial, Helvetica, sans-serif;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .nav-links a {
+      position: static;
+    }
+
+    .print-button {
+      right: 22px;
+      bottom: 22px;
+      z-index: 10;
+    }
+
+    .nav-links a:hover,
+    .print-button:hover {
+      background: #000;
+    }
+
+    .print-button:active {
+      transform: translateY(1px);
+    }
+
+    .print-button::before {
+      content: "⎙";
+      margin-right: 8px;
+      font-size: 17px;
+      line-height: 0;
+    }
+
+    .phrase.break-after {
+      margin-bottom: 4.5mm;
+    }
+
+    .phrase.close-after {
+      margin-bottom: 6mm;
+    }
+
+    .repeat {
+      grid-row: 2;
+      align-self: end;
+      margin-left: -2mm;
+      transform: translateY(-1.2mm);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        box-shadow: none;
+        width: 297mm;
+        height: 210mm;
+        padding: 18mm 18mm 13mm 18mm;
+      }
+
+      .nav-links,
+      .print-button {
+        display: none;
+      }
+
+      .sheet-page {
+        display: grid;
+        break-after: page;
+      }
+
+      .sheet-page:last-child {
+        break-after: auto;
+      }
+
+      .page-counter {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav-links" aria-label="Navegacion">
+    <a href="./index.html">Inicio</a>
+    <a href="./el-condor-pasa-arpegio.html">Arpegio</a>
+  </nav>
+  <button class="print-button" type="button" onclick="window.print()">Imprimir</button>
+  <main class="page" aria-label="Hoja A4 vertical de notas para piano: El Condor Pasa">
+    <div class="content">
+      <h1>EL CONDOR PASA</h1>
+      <div class="page-counter" aria-live="polite">Pagina 1 / 2</div>
+
+      <section class="music sheet-page active" data-page="1">
+        <div class="phrase" style="--cols: 10;">
+          <span class="empty-chord"></span><span class="chord chord-am">Am</span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="chord chord-c">C</span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">1</span><span class="name">MI</span></span>
+            <span class="note dash accent accent-am"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SOL#</span></span>
+            <span class="note dash"><span class="finger">1</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SI</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">DO</span></span>
+            <span class="note dash"><span class="finger">1</span><span class="name">SI</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">DO</span></span>
+            <span class="note dash"><span class="finger">4</span><span class="name">RE</span></span>
+            <span class="note circled accent accent-c"><span class="finger">5</span><span class="name">MI</span></span>
+          </div>
+        </div>
+
+        <div class="phrase" style="--cols: 7;">
+          <span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">4</span><span class="name">SOL</span></span>
+            <span class="note dash circled accent accent-c"><span class="finger">2</span><span class="name">MI</span></span>
+            <span class="note dash"><span class="finger">5</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">4</span><span class="name">SOL</span></span>
+            <span class="note dash"><span class="finger">5</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">4</span><span class="name">SOL</span></span>
+            <span class="note circled accent accent-c"><span class="finger">2</span><span class="name">MI</span></span>
+          </div>
+        </div>
+
+        <div class="phrase" style="--cols: 4;">
+          <span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="chord chord-am">Am</span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">4</span><span class="name">MI</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">RE</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">DO</span></span>
+            <span class="note circled accent accent-am"><span class="finger">1</span><span class="name">LA</span></span>
+          </div>
+        </div>
+
+        <div class="phrase close-after" style="--cols: 3;">
+          <span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">3</span><span class="name">DO</span></span>
+            <span class="note circled accent accent-am"><span class="finger">1</span><span class="name">LA</span></span>
+            <span class="repeat">//</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="music sheet-page" data-page="2">
+        <div class="phrase break-after" style="--cols: 8;">
+          <span class="empty-chord"></span><span class="chord chord-f">F</span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">1</span><span class="name">MI</span></span>
+            <span class="note dash circled accent accent-f"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SOL</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SOL</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SOL</span></span>
+            <span class="note circled accent accent-f"><span class="finger">3</span><span class="name">LA</span></span>
+          </div>
+        </div>
+
+        <div class="phrase" style="--cols: 7;">
+          <span class="empty-chord"></span><span class="empty-chord"></span><span class="chord chord-g">G</span><span class="empty-chord"></span><span class="empty-chord"></span><span class="chord chord-c">C</span><span class="empty-chord"></span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">5</span><span class="name">DO</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash circled accent accent-g"><span class="finger">2</span><span class="name">SOL</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">LA</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">SOL</span></span>
+            <span class="note circled accent accent-c"><span class="finger">1</span><span class="name">MI</span></span>
+            <span class="repeat">//</span>
+          </div>
+        </div>
+
+        <div class="phrase" style="--cols: 4;">
+          <span class="empty-chord"></span><span class="empty-chord"></span><span class="empty-chord"></span><span class="chord chord-f">F</span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">4</span><span class="name">MI</span></span>
+            <span class="note dash"><span class="finger">3</span><span class="name">RE</span></span>
+            <span class="note dash"><span class="finger">2</span><span class="name">DO</span></span>
+            <span class="note circled accent accent-f"><span class="finger">1</span><span class="name">LA</span></span>
+          </div>
+        </div>
+
+        <div class="phrase close-after" style="--cols: 2;">
+          <span class="empty-chord"></span><span class="chord chord-d">D</span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">3</span><span class="name">DO</span></span>
+            <span class="note circled accent accent-d"><span class="finger">1</span><span class="name">LA</span></span>
+          </div>
+        </div>
+
+        <div class="phrase" style="--cols: 2;">
+          <span class="empty-chord"></span><span class="chord chord-am">Am</span>
+          <div class="note-row">
+            <span class="note dash"><span class="finger">2</span><span class="name">MI</span></span>
+            <span class="note accent accent-am"><span class="finger">5</span><span class="name">LA</span></span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+  <script>
+    const pages = Array.from(document.querySelectorAll(".sheet-page"));
+    const counter = document.querySelector(".page-counter");
+    let currentPage = 0;
+
+    function showPage(index) {
+      currentPage = (index + pages.length) % pages.length;
+      pages.forEach((page, pageIndex) => {
+        page.classList.toggle("active", pageIndex === currentPage);
+      });
+      counter.textContent = `Pagina ${currentPage + 1} / ${pages.length}`;
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("a, button")) return;
+      showPage(currentPage + 1);
+    });
+  </script>
+</body>
+</html>
